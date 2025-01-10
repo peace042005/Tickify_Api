@@ -5,6 +5,17 @@
 @endsection
 
 @section('content')
+    <!-- <div class="row"> -->
+    <!--     <div class="col-12"> -->
+    <!--         <div class="page-title-box"> -->
+    <!--             <h4 class="mb-0">Grid JS</h4> -->
+    <!--             <ol class="breadcrumb mb-0"> -->
+    <!--                 <li class="breadcrumb-item"><a href="javascript: void(0);">Table</a></li> -->
+    <!--                 <li class="breadcrumb-item active">Grid JS</li> -->
+    <!--             </ol> -->
+    <!--         </div> -->
+    <!--     </div> -->
+    <!-- </div> -->
     <div class="card">
         <div class="card-header">
             <h5 class="card-title">Basic</h5>

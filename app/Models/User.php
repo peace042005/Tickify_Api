@@ -25,6 +25,8 @@ use Illuminate\Notifications\Notifiable;
  * @property string $date_naissance
  * @property Ticket[] $tickets
  * @property Evenement[] $evenements
+ * @property bool $isUtilisateur
+ * @property bool $isAdministrateur
  */
 class User extends Authenticatable
 {
@@ -102,5 +104,25 @@ class User extends Authenticatable
     public function role()
     {
         return $this->belongsTo(Role::class);
+    }
+
+    /**
+    * Check if the user is an Utilisateur
+    *
+    * @return bool
+    */
+    public function isUtilisateur()
+    {
+        return $this->role && $this->role->id === 1;
+    }
+
+    /**
+    * Check if the user is an admin
+    *
+    * @return bool
+    */
+    public function isAdministrateur()
+    {
+        return $this->role && $this->role->id === 2;
     }
 }

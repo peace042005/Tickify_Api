@@ -19,7 +19,7 @@
             <li class="menu-title">Menu...</li>
 
             <li class="nav-item">
-                <a class="nav-link" href="index.html">
+                <a class="nav-link" href="{{ route('dashboard') }}">
                     <span class="nav-icon">
                         <iconify-icon icon="mingcute:home-3-line"></iconify-icon>
                     </span>
@@ -75,6 +75,17 @@
             </li>
 
             <li class="menu-title">UI Kit...</li>
+
+            <li class="nav-item">
+                <a class=" nav-link
+                    {{ Request::routeIs('roles.*') ? 'active' : '' }} "
+                    href="{{ route('roles.index') }}">
+                    <span class="nav-icon">
+                        <iconify-icon icon="mdi:user-check"></iconify-icon>
+                    </span>
+                    <span class="nav-text"> Roles </span>
+                </a>
+            </li>
 
             <li class="nav-item">
                 <a class="nav-link menu-arrow" href="index.html#sidebarBaseUI" data-bs-toggle="collapse" role="button"

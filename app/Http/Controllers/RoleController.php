@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Role;
 use Illuminate\Http\Request;
 
 class RoleController extends Controller
@@ -11,7 +12,9 @@ class RoleController extends Controller
      */
     public function index()
     {
-        //
+        $roles = Role::all();
+
+        return view('roles.index', compact('roles'));
     }
 
     /**
@@ -19,7 +22,7 @@ class RoleController extends Controller
      */
     public function create()
     {
-        //
+        return view('roles.create');
     }
 
     /**
@@ -27,7 +30,17 @@ class RoleController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'nom' => 'required|unique:roles|max:50',
+        ], [
+            'nom.unique' => 'Ce nom de rôle existe déjà.',
+            'nom.required' => 'Le nom du rôle est obligatoire.',
+            'nom.max' => 'Le nom du rôle ne peut pas dépasser 50 caractères.',
+        ]);
+
+        Role::create($validated);
+
+        return redirect()->route('roles.index')->with('success', 'Rôle créé avec succès!');
     }
 
     /**
@@ -35,7 +48,9 @@ class RoleController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $role = Role::findOrFail($id);
+
+        return view('roles.show', compact('role'));
     }
 
     /**
@@ -43,7 +58,9 @@ class RoleController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $role = Role::findOrFail($id);
+
+        return view('roles.edit', compact('role'));
     }
 
     /**
@@ -51,7 +68,19 @@ class RoleController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $role = Role::findOrFail($id);
+
+        $validated = $request->validate([
+            'nom' => 'required|unique:roles,nom,'.$id.'|max:50',
+        ], [
+            'nom.unique' => 'Ce nom de rôle existe déjà.',
+            'nom.required' => 'Le nom du rôle est obligatoire.',
+            'nom.max' => 'Le nom du rôle ne peut pas dépasser 50 caractères.',
+        ]);
+
+        $role->update($validated);
+
+        return redirect()->route('roles.index')->with('success', 'Rôle modifié avec succès!');
     }
 
     /**
@@ -59,6 +88,8 @@ class RoleController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        Role::destroy($id);
+
+        return redirect()->route('roles.index')->with('success', 'Role supprimé avec succès!');
     }
 }

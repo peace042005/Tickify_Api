@@ -35,13 +35,16 @@
         <!-- ==================================================== -->
         <div class="page-content">
 
-            <!-- Start Container Fluid -->
-            @yield('content')
-            <!-- End Container Fluid -->
+            <div class="container-fluid">
+                <!-- Start Container Fluid -->
+                @yield('content')
+                <!-- End Container Fluid -->
 
-            <!-- Footer Start -->
-            @include('frontend.footer')
-            <!-- Footer End -->
+                <!-- Footer Start -->
+                @include('frontend.footer')
+                <!-- Footer End -->
+
+            </div>
 
         </div>
     </div>

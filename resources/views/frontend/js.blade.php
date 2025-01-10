@@ -12,7 +12,4 @@
 <!-- Dashboard Js -->
 <script src="{{ asset('assets/js/pages/dashboard.js') }}"></script>
 
-<!-- Grid Js -->
-<script src="{{ asset('assets/vendor/gridjs/gridjs.umd.js') }}"></script>
-
 @yield('js')
