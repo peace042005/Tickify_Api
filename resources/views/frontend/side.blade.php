@@ -88,6 +88,17 @@
             </li>
 
             <li class="nav-item">
+                <a class=" nav-link
+                    {{ Request::routeIs('evenements.*') ? 'active' : '' }} "
+                    href="{{ route('evenements.index') }}">
+                    <span class="nav-icon">
+                        <iconify-icon icon="mdi:calendar-check"></iconify-icon>
+                    </span>
+                    <span class="nav-text"> Événements </span>
+                </a>
+            </li>
+
+            <li class="nav-item">
                 <a class="nav-link menu-arrow" href="index.html#sidebarBaseUI" data-bs-toggle="collapse" role="button"
                     aria-expanded="false" aria-controls="sidebarBaseUI">
                     <span class="nav-icon"><iconify-icon icon="mingcute:leaf-line"></iconify-icon></span>

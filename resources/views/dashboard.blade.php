@@ -403,3 +403,13 @@
     </div>
     <!-- end row -->
 @endsection
+
+@section('js')
+    <!-- Vector Map Js -->
+    <script src="{{ asset('assets/vendor/jsvectormap/js/jsvectormap.min.js') }}"></script>
+    <script src="{{ asset('assets/vendor/jsvectormap/maps/world-merc.js') }}"></script>
+    <script src="{{ asset('assets/vendor/jsvectormap/maps/world.js') }}"></script>
+
+    <!-- Dashboard Js -->
+    <script src="{{ asset('assets/js/pages/dashboard.js') }}"></script>
+@endsection

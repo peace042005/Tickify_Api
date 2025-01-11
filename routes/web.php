@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\EvenementController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RoleController;
 use Illuminate\Support\Facades\Route;
@@ -23,6 +24,7 @@ Route::middleware('auth')->group(function () {
 
     // Créer les routes pour la table role à l'exception de la route roles.show
     Route::resource('roles', RoleController::class)->except('show');
+    Route::resource('evenements', EvenementController::class);
 });
 
 require __DIR__.'/auth.php';
