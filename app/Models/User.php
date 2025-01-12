@@ -6,6 +6,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 
 /**
  * @property int $id
@@ -30,9 +31,10 @@ use Illuminate\Notifications\Notifiable;
  */
 class User extends Authenticatable
 {
+    use HasApiTokens;
+
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory;
-
     use Notifiable;
 
     /**
@@ -107,20 +109,20 @@ class User extends Authenticatable
     }
 
     /**
-    * Check if the user is an Utilisateur
-    *
-    * @return bool
-    */
+     * Check if the user is an Utilisateur
+     *
+     * @return bool
+     */
     public function isUtilisateur()
     {
         return $this->role && $this->role->id === 1;
     }
 
     /**
-    * Check if the user is an admin
-    *
-    * @return bool
-    */
+     * Check if the user is an admin
+     *
+     * @return bool
+     */
     public function isAdministrateur()
     {
         return $this->role && $this->role->id === 2;

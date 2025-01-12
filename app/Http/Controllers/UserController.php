@@ -53,6 +53,8 @@ class UserController extends Controller
         ]);
 
         event(new Registered($user));
+
+        return redirect()->route('utilisateurs.index')->with('success', 'Utilisateur créé avec succès!');
     }
 
     /**
