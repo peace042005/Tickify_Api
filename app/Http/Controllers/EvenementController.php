@@ -186,6 +186,8 @@ class EvenementController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        Evenement::destroy($id);
+
+        return redirect()->route('evenements.index')->with('success', 'Événement supprimé avec succès!');
     }
 }

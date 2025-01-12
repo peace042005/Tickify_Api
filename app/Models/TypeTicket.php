@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property float $prix
  * @property int $evenement_id
  * @property Evenement $evenement
+ * @property Ticket $tickets
  * @property string $created_at
  * @property string $updated_at
  */
@@ -36,5 +37,15 @@ class TypeTicket extends Model
     public function evenement()
     {
         return $this->belongsTo(Evenement::class);
+    }
+
+    /**
+     * Get the tickets for the Type_ticket
+     *
+     * @return Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function tickets()
+    {
+        return $this->hasMany(Ticket::class);
     }
 }

@@ -95,13 +95,14 @@
                         <h5 class="card-title mb-0">Tickets disponibles</h5>
                     </div>
                     <div class="card-body">
-                        @foreach ($evenement->typeTickets as $ticket)
-                            <div class="ticket-option mb-3 p-3 border rounded">
+                        @foreach ($evenement->typeTickets as $type)
+                            <div class="type-option mb-3 p-3 border rounded">
                                 <div class="d-flex justify-content-between align-items-center mb-2">
-                                    <h6 class="mb-0">{{ $ticket->nom }}</h6>
-                                    <span class="badge bg-primary">{{ number_format($ticket->prix, 0, ',', ' ') }}
+                                    <h6 class="mb-0">{{ $type->nom }}</h6>
+                                    <span class="badge bg-primary">{{ number_format($type->prix, 0, ',', ' ') }}
                                         CFA</span>
                                 </div>
+                                <h6 class="mb-0 text-muted w-100 text-center">{{ $type->tickets->count() }} vendus</h6>
                                 <!-- <button class="btn btn-primary w-100"> -->
                                 <!--     Acheter -->
                                 <!-- </button> -->
