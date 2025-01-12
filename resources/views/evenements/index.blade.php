@@ -84,6 +84,7 @@
                     "{{ $evenement->date_fin->diffForHumans() }}",
                     "{{ $evenement->updated_at->diffForHumans() }}",
                     {
+                        view: "{{ route('evenements.show', $evenement->id) }}",
                         edit: "{{ route('evenements.edit', $evenement->id) }}",
                         delete: "{{ route('evenements.destroy', $evenement->id) }}"
                     }
@@ -103,6 +104,7 @@
                     formatter: (cell) => {
                         return gridjs.html(
                             `<div class="d-flex gap-2 justify-content-center">
+                                <a href="${cell.view}" class="btn btn-info py-1"><i class="bx bx-show text-white"></i></a>
                                 <a href="${cell.edit}" class="btn btn-primary py-1"><i class="bx bx-pencil text-white"></i></a>
                                 <button onclick="deleteEvent('${cell.delete}')" class="btn btn-danger py-1"><i class="bx bx-trash text-white"></i></button>
                             </div>`

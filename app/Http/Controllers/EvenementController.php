@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Evenement;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class EvenementController extends Controller
 {
@@ -80,7 +81,9 @@ class EvenementController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $evenement = Evenement::with(['createdBy', 'typeTickets', 'images'])->findOrFail($id);
+
+        return view('evenements.show', compact('evenement'));
     }
 
     /**
@@ -98,7 +101,6 @@ class EvenementController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        // Validation des données récupérées du formulaire de mise a jour
         $request->validate([
             'event_nom' => 'required|string|max:255',
             'description' => 'required|string|max:500',
@@ -108,6 +110,10 @@ class EvenementController extends Controller
             'tickets' => 'required|array|min:1',
             'tickets.*.nom' => 'required|string|max:255',
             'tickets.*.prix' => 'required|numeric|min:0',
+            'images' => 'nullable|array',
+            'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'deleted_images' => 'nullable|array',
+            'deleted_images.*' => 'integer|exists:images,id',
         ]);
 
         $evenement = Evenement::findOrFail($id);
@@ -119,26 +125,22 @@ class EvenementController extends Controller
             'nombre_tickets' => $request->nombre_tickets,
         ]);
 
-        // Récupérer l'id des types de tickets existants
+        // Handle ticket types
         $existingTicketIds = $evenement->typeTickets->pluck('id')->toArray();
-
-        // Variable pour stocker les ids des types de tickets mis à jour
         $processedTicketIds = [];
 
         foreach ($request->tickets as $index => $ticketData) {
             $ticket = $evenement->typeTickets()
-                ->where('id', $index) // Use array index as ID if it matches an existing ticket
+                ->where('id', $index)
                 ->first();
 
             if ($ticket) {
-                // Update existing ticket
                 $ticket->update([
                     'nom' => $ticketData['nom'],
                     'prix' => $ticketData['prix'],
                 ]);
                 $processedTicketIds[] = $ticket->id;
             } else {
-                // Create new ticket
                 $newTicket = $evenement->typeTickets()->create([
                     'nom' => $ticketData['nom'],
                     'prix' => $ticketData['prix'],
@@ -147,11 +149,33 @@ class EvenementController extends Controller
             }
         }
 
-        // Suppression des types de tickets qui ne se retrouve plus dans la requête
-        // Mais qui sont encore dans la base de données
+        // Suppression des tickets supprimés
         $evenement->typeTickets()
             ->whereNotIn('id', $processedTicketIds)
             ->delete();
+
+        // Suppression des images qui se retrouvent dans deleted_images
+        if ($request->has('deleted_images')) {
+            foreach ($request->deleted_images as $imageId) {
+                $image = $evenement->images()->find($imageId);
+                if ($image) {
+                    // Supprime le fichier du l'ordinateur
+                    Storage::disk('public')->delete($image->path);
+                    // Suprime l'enregistrement de l'image de la base de données
+                    $image->delete();
+                }
+            }
+        }
+
+        // Creation de nouvelles images
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $image) {
+                $path = $image->store('evenements', 'public');
+                $evenement->images()->create([
+                    'path' => $path,
+                ]);
+            }
+        }
 
         return redirect()->route('evenements.index', $evenement)
             ->with('success', 'Évènement mis à jour avec succès');

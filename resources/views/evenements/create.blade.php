@@ -109,11 +109,12 @@
                     </div>
                 </div>
 
-            </div>
-        </div>
-        <div class="row mt-3">
-            <div class="col">
-                <button type="submit" class="btn btn-primary">Créer l'évènement</button>
+                <div class="row my-3">
+                    <div class="col d-flex justify-content-center align-items-center">
+                        <button type="submit" class="btn btn-primary">Créer l'évènement</button>
+                    </div>
+                </div>
+
             </div>
         </div>
     </form>
@@ -196,8 +197,6 @@
             const ticket = document.getElementById(`ticket-${id}`);
             if (document.querySelectorAll('.ticket-type').length > 1) {
                 ticket.remove();
-            } else {
-                alert('Au moins un type de ticket est requis');
             }
         }
 
@@ -209,12 +208,35 @@
             const previewContainer = document.getElementById('image-preview-container');
             const maxFileSize = 2048 * 1024; // 2MB in bytes
 
-            imageInput.addEventListener('change', function() {
-                // Clear existing previews
-                previewContainer.innerHTML = '';
+            // Create modal elements for larger preview
+            const modalHtml = `
+        <div class="modal fade" id="imagePreviewModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Aperçu de l'image</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body text-center">
+                        <img id="modalPreviewImage" src="" alt="Preview" style="max-width: 100%; max-height: 80vh;">
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
 
-                // Validate and preview each file
-                Array.from(this.files).forEach((file, index) => {
+            const imageModal = new bootstrap.Modal(document.getElementById('imagePreviewModal'));
+            const modalImage = document.getElementById('modalPreviewImage');
+
+            // Keep track of all files
+            let currentFiles = new DataTransfer();
+
+            imageInput.addEventListener('change', function() {
+                const newFiles = Array.from(this.files);
+
+                // Validate and preview each new file
+                newFiles.forEach((file, index) => {
                     // Validate file type
                     if (!file.type.match('image.*')) {
                         alert(`Le fichier "${file.name}" n'est pas une image valide.`);
@@ -224,12 +246,15 @@
                     // Validate file size
                     if (file.size > maxFileSize) {
                         alert(
-                            `Le fichier "${file.name}" dépasse la taille maximale autorisée de 2MB.`);
+                            `Le fichier "${file.name}" dépasse la taille maximale autorisée de 2MB.`
+                            );
                         return;
                     }
 
-                    const reader = new FileReader();
+                    // Add to current files
+                    currentFiles.items.add(file);
 
+                    const reader = new FileReader();
                     reader.onload = function(e) {
                         const previewWrapper = document.createElement('div');
                         previewWrapper.className = 'position-relative';
@@ -237,32 +262,37 @@
 
                         const preview = document.createElement('img');
                         preview.src = e.target.result;
-                        preview.className = 'img-fluid rounded';
+                        preview.className = 'img-fluid rounded cursor-pointer';
                         preview.style.width = '150px';
                         preview.style.height = '150px';
                         preview.style.objectFit = 'cover';
+
+                        // Add click handler for larger preview
+                        preview.onclick = function() {
+                            modalImage.src = e.target.result;
+                            imageModal.show();
+                        };
 
                         const removeButton = document.createElement('button');
                         removeButton.type = 'button';
                         removeButton.className =
                             'btn btn-danger btn-sm position-absolute top-0 end-0 m-1';
                         removeButton.innerHTML = '<i class="bx bx-x"></i>';
+
+                        // Store the file name to identify which file to remove
+                        const fileName = file.name;
                         removeButton.onclick = function() {
                             previewWrapper.remove();
 
-                            // Create a new FileList without the removed image
-                            const dt = new DataTransfer();
-                            const {
-                                files
-                            } = imageInput;
-
-                            for (let i = 0; i < files.length; i++) {
-                                if (i !== index) {
-                                    dt.items.add(files[i]);
+                            // Create new DataTransfer without the removed file
+                            const updatedFiles = new DataTransfer();
+                            for (let i = 0; i < currentFiles.files.length; i++) {
+                                if (currentFiles.files[i].name !== fileName) {
+                                    updatedFiles.items.add(currentFiles.files[i]);
                                 }
                             }
-
-                            imageInput.files = dt.files;
+                            currentFiles = updatedFiles;
+                            imageInput.files = currentFiles.files;
                         };
 
                         previewWrapper.appendChild(preview);
@@ -272,6 +302,9 @@
 
                     reader.readAsDataURL(file);
                 });
+
+                // Update input files with all current files
+                imageInput.files = currentFiles.files;
             });
         });
     </script>
@@ -302,6 +335,42 @@
 
         .ticket-type:last-child {
             border-bottom: none;
+        }
+
+        .cursor-pointer {
+            cursor: pointer;
+        }
+
+        .cursor-pointer:hover {
+            opacity: 0.9;
+            transform: scale(1.02);
+            transition: all 0.2s ease;
+        }
+
+        #image-preview-container {
+            min-height: 100px;
+            border: 2px dashed #dee2e6;
+            border-radius: 8px;
+            padding: 1rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            align-items: flex-start;
+        }
+
+        #image-preview-container:empty {
+            justify-content: center;
+            align-items: center;
+        }
+
+        #image-preview-container:empty::after {
+            content: 'Aucune image sélectionnée';
+            color: #6c757d;
+            font-style: italic;
+        }
+
+        .modal-dialog.modal-lg {
+            max-width: 90vw;
         }
     </style>
 @endsection

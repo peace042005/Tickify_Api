@@ -26,9 +26,7 @@
                             <textarea class="form-control @error('description') is-invalid @enderror" id="description" name="description"
                                 rows="4" maxlength="500" data-bs-toggle="autosize" placeholder="Décrivez votre évènement..." required>{{ old('description', $evenement->description) }}</textarea>
                             <div class="d-flex justify-content-between mt-1">
-                                <small class="text-muted"
-                                    id="charCount">{{ strlen(old('description', $evenement->description)) }}/500
-                                    caractères</small>
+                                <small class="text-muted" id="charCount">0/500 caractères</small>
                                 @error('description')
                                     <small class="text-danger">{{ $message }}</small>
                                 @enderror
@@ -58,7 +56,6 @@
                                 </div>
                             @enderror
                         </div>
-
                         <div class="mb-3">
                             <label for="nombre_tickets" class="form-label">Nombre de tickets</label>
                             <input type="number" class="form-control @error('nombre_tickets') is-invalid @enderror"
@@ -87,7 +84,7 @@
                                 <div class="ticket-type mb-2" id="ticket-{{ $index }}">
                                     <div class="d-flex align-items-center gap-3">
                                         <div class="flex-grow-1">
-                                            <div class="d-flex gap-3 align-items-center">
+                                            <div class="d-flex gap-3 align-items-center justify-content-center">
                                                 <div class="flex-grow-1">
                                                     <input type="text" class="form-control" placeholder="Nom du ticket"
                                                         name="tickets[{{ $index }}][nom]"
@@ -98,7 +95,7 @@
                                                         <input type="text" class="form-control" placeholder="Prix"
                                                             name="tickets[{{ $index }}][prix]"
                                                             value="{{ $ticket->prix }}" min="0" required>
-                                                        <span class="input-group-text">F CFA</span>
+                                                        <span class="input-group-text">CFA</span>
                                                     </div>
                                                 </div>
                                                 <div>
@@ -115,9 +112,8 @@
                             @endforeach
                         </div>
                     </div>
-
-
                 </div>
+
                 <div class="card mt-3">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h5>Images</h5>
@@ -130,9 +126,12 @@
                     <div class="card-body">
                         <div id="image-preview-container" class="d-flex flex-wrap gap-3">
                             @foreach ($evenement->images as $image)
-                                <div class="position-relative" style="width: 150px;">
-                                    <img src="{{ asset('storage/' . $image->path) }}" class="img-fluid rounded"
-                                        style="width: 150px; height: 150px; object-fit: cover;">
+                                <div class="position-relative" style="width: 150px;"
+                                    id="image-wrapper-{{ $image->id }}">
+                                    <img src="{{ asset('storage/' . $image->path) }}"
+                                        class="img-fluid rounded cursor-pointer"
+                                        style="width: 150px; height: 150px; object-fit: cover;"
+                                        onclick="showImagePreview('{{ asset('storage/' . $image->path) }}')">
                                     <button type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0 m-1"
                                         onclick="removeExistingImage({{ $image->id }})">
                                         <i class="bx bx-x"></i>
@@ -140,6 +139,9 @@
                                 </div>
                             @endforeach
                         </div>
+
+                        <!-- Add this hidden input to store deleted image IDs -->
+                        <div id="deleted-images-container"></div>
                         @error('images')
                             <div class="text-danger mt-2">
                                 {{ $message }}
@@ -152,28 +154,47 @@
                         @enderror
                     </div>
                 </div>
-            </div>
 
-        </div>
-        <div class="row mt-3">
-            <div class="col">
-                <button type="submit" class="btn btn-primary">Mettre à jour l'évènement</button>
+                <div class="row my-3">
+                    <div class="col d-flex justify-content-center align-items-center">
+                        <button type="submit" class="btn btn-primary">Mettre à jour l'évènement</button>
+                    </div>
+                </div>
             </div>
         </div>
     </form>
+
+    <!-- Modal for image preview -->
+    <div class="modal fade" id="imagePreviewModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Aperçu de l'image</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <img id="modalPreviewImage" src="" alt="Preview"
+                        style="max-width: 100%; max-height: 80vh;">
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @section('js')
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        // Initialisation des sélecteurs de date
+        // Initialize date pickers
         document.getElementById("date_debut").flatpickr({
             enableTime: true,
             dateFormat: "Y-m-d H:i",
+            minDate: "today"
         });
 
         document.getElementById("date_fin").flatpickr({
             enableTime: true,
             dateFormat: "Y-m-d H:i",
+            minDate: "today"
         });
 
         // Handle description character count
@@ -181,15 +202,16 @@
             const textarea = document.getElementById('description');
             const charCount = document.getElementById('charCount');
 
+            // Initial count
+            const initialCount = textarea.value.length;
+            charCount.textContent = `${initialCount}/500 caractères`;
+
             textarea.addEventListener('input', function() {
                 this.style.height = 'auto';
                 this.style.height = (this.scrollHeight) + 'px';
-
-                // Mets à jour le compteur de caractères
                 const remaining = this.value.length;
                 charCount.textContent = `${remaining}/500 caractères`;
             });
-
         });
 
         // Ticket type management
@@ -203,7 +225,7 @@
                 <div class="ticket-type mb-2" id="ticket-${ticketCounter}">
                     <div class="d-flex align-items-center gap-3">
                         <div class="flex-grow-1">
-                            <div class="d-flex gap-3 align-items-center">
+                            <div class="d-flex gap-3 align-items-center justify-content-center">
                                 <div class="flex-grow-1">
                                     <input type="text" class="form-control"
                                            placeholder="Nom du ticket"
@@ -222,7 +244,7 @@
                                     <button type="button" class="btn btn-icon p-2"
                                             onclick="removeTicketType(${ticketCounter})"
                                             style="color: #ff0000; font-size: 1.2rem; line-height: 1;">
-                                            <i class='bx bx-trash'></i>
+                                        <i class='bx bx-trash'></i>
                                     </button>
                                 </div>
                             </div>
@@ -243,22 +265,128 @@
             }
         }
 
-        document.getElementById('addTicket').addEventListener('click', addTicketType);
+        // Image preview modal
+        const imageModal = new bootstrap.Modal(document.getElementById('imagePreviewModal'));
+        const modalImage = document.getElementById('modalPreviewImage');
+
+        function showImagePreview(imageSrc) {
+            modalImage.src = imageSrc;
+            imageModal.show();
+        }
+
+        // Image management
+        document.addEventListener('DOMContentLoaded', function() {
+            const imageInput = document.getElementById('event-images');
+            const previewContainer = document.getElementById('image-preview-container');
+            const maxFileSize = 2048 * 1024; // 2MB in bytes
+
+            // Keep track of all files
+            let currentFiles = new DataTransfer();
+
+            imageInput.addEventListener('change', function() {
+                const newFiles = Array.from(this.files);
+
+                newFiles.forEach((file) => {
+                    if (!file.type.match('image.*')) {
+                        alert(`Le fichier "${file.name}" n'est pas une image valide.`);
+                        return;
+                    }
+
+                    if (file.size > maxFileSize) {
+                        alert(
+                            `Le fichier "${file.name}" dépasse la taille maximale autorisée de 2MB.`
+                        );
+                        return;
+                    }
+
+                    currentFiles.items.add(file);
+
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const previewWrapper = document.createElement('div');
+                        previewWrapper.className = 'position-relative';
+                        previewWrapper.style.width = '150px';
+
+                        const preview = document.createElement('img');
+                        preview.src = e.target.result;
+                        preview.className = 'img-fluid rounded cursor-pointer';
+                        preview.style.width = '150px';
+                        preview.style.height = '150px';
+                        preview.style.objectFit = 'cover';
+                        preview.onclick = function() {
+                            showImagePreview(e.target.result);
+                        };
+
+                        const removeButton = document.createElement('button');
+                        removeButton.type = 'button';
+                        removeButton.className =
+                            'btn btn-danger btn-sm position-absolute top-0 end-0 m-1';
+                        removeButton.innerHTML = '<i class="bx bx-x"></i>';
+
+                        const fileName = file.name;
+                        removeButton.onclick = function() {
+                            previewWrapper.remove();
+                            const updatedFiles = new DataTransfer();
+                            for (let i = 0; i < currentFiles.files.length; i++) {
+                                if (currentFiles.files[i].name !== fileName) {
+                                    updatedFiles.items.add(currentFiles.files[i]);
+                                }
+                            }
+                            currentFiles = updatedFiles;
+                            imageInput.files = currentFiles.files;
+                        };
+
+                        previewWrapper.appendChild(preview);
+                        previewWrapper.appendChild(removeButton);
+                        previewContainer.appendChild(previewWrapper);
+                    };
+
+                    reader.readAsDataURL(file);
+                });
+
+                imageInput.files = currentFiles.files;
+            });
+        });
 
         function removeExistingImage(imageId) {
-            // Hide the image from the preview
-            const imageElement = document.querySelector(`[data-image-id='${imageId}']`);
-            if (imageElement) {
-                imageElement.style.display = 'none';
-            }
+            Swal.fire({
+                title: 'Êtes-vous sûr?',
+                text: "Vous ne pourrez pas revenir en arrière!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Oui, supprimer!',
+                cancelButtonText: 'Annuler'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Remove the image wrapper from view
+                    const imageWrapper = document.getElementById(`image-wrapper-${imageId}`);
+                    if (imageWrapper) {
+                        imageWrapper.remove();
+                    }
 
-            // Append a hidden input to the form to mark this image for deletion
-            const form = document.querySelector('form');
-            const input = document.createElement('input');
-            input.type = 'hidden';
-            input.name = 'images_to_delete[]';
-            input.value = imageId;
-            form.appendChild(input);
+                    // Add hidden input for deletion if it doesn't exist
+                    const deletedImagesContainer = document.getElementById('deleted-images-container');
+                    const existingInput = document.querySelector(
+                        `input[name="deleted_images[]"][value="${imageId}"]`);
+
+                    if (!existingInput) {
+                        const input = document.createElement('input');
+                        input.type = 'hidden';
+                        input.name = 'deleted_images[]';
+                        input.value = imageId;
+                        deletedImagesContainer.appendChild(input);
+                    }
+
+                    // Check if there are no more images
+                    const previewContainer = document.getElementById('image-preview-container');
+                    if (previewContainer.children.length === 0) {
+                        previewContainer.innerHTML =
+                            '<div class="text-muted fst-italic">Aucune image sélectionnée</div>';
+                    }
+                }
+            })
         }
     </script>
 
@@ -288,6 +416,42 @@
 
         .ticket-type:last-child {
             border-bottom: none;
+        }
+
+        .cursor-pointer {
+            cursor: pointer;
+        }
+
+        .cursor-pointer:hover {
+            opacity: 0.9;
+            transform: scale(1.02);
+            transition: all 0.2s ease;
+        }
+
+        #image-preview-container {
+            min-height: 100px;
+            border: 2px dashed #dee2e6;
+            border-radius: 8px;
+            padding: 1rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            align-items: flex-start;
+        }
+
+        #image-preview-container:empty {
+            justify-content: center;
+            align-items: center;
+        }
+
+        #image-preview-container:empty::after {
+            content: 'Aucune image sélectionnée';
+            color: #6c757d;
+            font-style: italic;
+        }
+
+        .modal-dialog.modal-lg {
+            max-width: 90vw;
         }
     </style>
 @endsection

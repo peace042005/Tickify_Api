@@ -1,3 +1,7 @@
+@php
+    \Carbon\Carbon::setLocale('fr');
+@endphp
+
 @extends('frontend.index')
 
 @section('css')
