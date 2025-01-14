@@ -27,11 +27,10 @@ class EvenementResource extends JsonResource
             'images' => $this->images->map(function ($image) {
                 return [
                     'id' => $image->id,
-                    'nom' => $image->nom,
-                    // 'url' => Storage::url($image->path),
                     'url' => asset('storage/' . $image->path) ,
                 ];
             }),
+            'typesTickets' => TypeTicketRessource::collection($this->whenLoaded('typeTickets')),  // Updated to match the relationship name
         ];
     }
 }

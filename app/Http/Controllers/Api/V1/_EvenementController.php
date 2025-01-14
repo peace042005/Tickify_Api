@@ -2,28 +2,35 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use Illuminate\Http\Request;
+use App\Filters\V1\EvenementFilter;
 use App\Http\Controllers\Controller;
-use App\Http\Resources\V1\EvenementResource;
 use App\Http\Resources\V1\EvenementCollection;
+use App\Http\Resources\V1\EvenementResource;
 use App\Models\Evenement;
+use Illuminate\Http\Request;
 
 class _EvenementController extends Controller
 {
+
+    private string $typetag = 'typeTickets';
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        return new EvenementCollection(Evenement::paginate());
-    }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
+        $filter = new EvenementFilter();
+        $filterItems = $filter->transform($request);
+
+        $includeType = $request->query($this->typetag);
+        $evenements = Evenement::where($filterItems);
+        if ($includeType) {
+            $evenements = $evenements->with('typeTickets');
+            // dd($evenements->get());
+        }
+
+        return new EvenementCollection($evenements->paginate()->appends($request->query()));
+
     }
 
     /**
@@ -39,15 +46,12 @@ class _EvenementController extends Controller
      */
     public function show(Evenement $evenement)
     {
-        return new EvenementResource($evenement);
-    }
+        $includeType = request()->query($this->typetag);
+        if ($includeType) {
+            return new EvenementResource($evenement->loadMissing('typeTickets'));
+        }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
+        return new EvenementResource($evenement);
     }
 
     /**
