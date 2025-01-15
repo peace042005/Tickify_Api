@@ -24,6 +24,7 @@ class AuthController extends Controller
             'name' => $fields['name'],
             'prenom' => $fields['prenom'],
             'email' => $fields['email'],
+            'role_id' => 1,
             'password' => Hash::make($fields['password']),
         ]);
 

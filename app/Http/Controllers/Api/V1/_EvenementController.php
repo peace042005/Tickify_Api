@@ -26,7 +26,6 @@ class _EvenementController extends Controller
         $evenements = Evenement::where($filterItems);
         if ($includeType) {
             $evenements = $evenements->with('typeTickets');
-            // dd($evenements->get());
         }
 
         return new EvenementCollection($evenements->paginate()->appends($request->query()));
