@@ -13,6 +13,7 @@ class _EvenementController extends Controller
 {
 
     private string $typetag = 'typeTickets';
+
     /**
      * Display a listing of the resource.
      */

@@ -16,7 +16,10 @@ class _TicketController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('auth:sanctum', ['except' => ['index', 'show']]);
+        $this->middleware(
+            'auth:sanctum',
+            // ['except' => ['index', 'show']],
+        );
     }
 
     /**
@@ -24,7 +27,8 @@ class _TicketController extends Controller
      */
     public function index()
     {
-        return Ticket::all();
+        // Retourne les tickets commandés par l'utilisateur authentifié
+        return request()->user()->tickets()->get();
     }
 
     /**
@@ -34,15 +38,9 @@ class _TicketController extends Controller
     {
         $request->validate([
             'type_ticket_id' => 'required|exists:type_tickets,id',
-            // 'user_id' => 'required|exists:users,id',
         ]);
 
-        // Ticket::create([
-        //     'type_ticket_id' => $request->type_ticket_id,
-        //     'user_id' => $request->user_id,
-        //     'statut' => 'valide',
-        // ]);
-
+        // Créer le ticket affecté à l'utilisateur authentifié
         $request->user()->tickets()->create([
             'type_ticket_id' => $request->type_ticket_id,
             'statut' => 'valide',

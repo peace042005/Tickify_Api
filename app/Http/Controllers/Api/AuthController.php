@@ -20,6 +20,7 @@ class AuthController extends Controller
             // NOTE: Confirmed: Do not forget that we will need password and password_confirmation
         ]);
 
+        // Créer l'utilisateur le rôle d'utilisateur
         $user = User::create([
             'name' => $fields['name'],
             'prenom' => $fields['prenom'],
@@ -28,6 +29,7 @@ class AuthController extends Controller
             'password' => Hash::make($fields['password']),
         ]);
 
+        // Ajouter le token d'authentification à l'utilisateur
         $token = $user->createToken($user->email);
 
         return [
@@ -43,12 +45,16 @@ class AuthController extends Controller
             'password' => ['required'],
         ]);
 
+        // Récupérer l'utilisateur dont l'email correspond
+        // ->first() pour s'assurer que l'objet n'est pas un array
         $user = User::where('email', $fields['email'])->first();
 
+        // Erreur si l'utilisateur n'existe pas ou si le mot de passe est incorrecte
         if (! $user || ! Hash::check($fields['password'], $user->password)) {
             return ['message' => 'Invalid credentials'];
         }
 
+        // Ajouter le token d'authentification à l'utilisateur
         $token = $user->createToken($user->email);
 
         return [
