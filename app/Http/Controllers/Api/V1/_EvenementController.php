@@ -12,7 +12,7 @@ use Illuminate\Http\Request;
 class _EvenementController extends Controller
 {
 
-    private string $typetag = 'typeTickets';
+    private string $typetag = 'includeType';
 
     /**
      * Display a listing of the resource.
@@ -29,7 +29,7 @@ class _EvenementController extends Controller
             $evenements = $evenements->with('typeTickets');
         }
 
-        return new EvenementCollection($evenements->paginate()->appends($request->query()));
+        return new EvenementCollection($evenements->get());
 
     }
 
