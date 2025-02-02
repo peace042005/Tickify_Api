@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\V1\TicketCollection;
 use App\Models\Ticket;
+use App\Http\Resources\V1\TicketRessource;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 
@@ -28,7 +30,14 @@ class _TicketController extends Controller
     public function index()
     {
         // Retourne les tickets commandés par l'utilisateur authentifié
-        return request()->user()->tickets()->get();
+        // return request()->user()->tickets()->get();
+
+        $tickets = request()->user()
+            ->tickets()
+            ->with(['typeTicket.evenement'])
+            ->get();
+
+        return new TicketCollection($tickets);
     }
 
     /**

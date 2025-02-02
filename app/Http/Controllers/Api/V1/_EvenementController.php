@@ -11,7 +11,6 @@ use Illuminate\Http\Request;
 
 class _EvenementController extends Controller
 {
-
     private string $typetag = 'includeType';
 
     /**
@@ -26,7 +25,7 @@ class _EvenementController extends Controller
         $includeType = $request->query($this->typetag);
         $evenements = Evenement::where($filterItems);
         if ($includeType) {
-            $evenements = $evenements->with('typeTickets');
+            $evenements = $evenements->with('typeTickets.tickets');
         }
 
         return new EvenementCollection($evenements->get());
@@ -48,7 +47,7 @@ class _EvenementController extends Controller
     {
         $includeType = request()->query($this->typetag);
         if ($includeType) {
-            return new EvenementResource($evenement->loadMissing('typeTickets'));
+            return new EvenementResource($evenement->loadMissing('typeTickets.tickets'));
         }
 
         return new EvenementResource($evenement);
