@@ -32,6 +32,16 @@
                             </div>
                         </div>
                         <div class="mb-3">
+                            <label for="lieu" class="form-label">Lieu</label>
+                            <input type="text" class="form-control @error('lieu') is-invalid @enderror"
+                                id="lieu" name="lieu" value="{{ old('lieu') }}" required>
+                            @error('lieu')
+                                <div class="invalid-feedback">
+                                    {{ $message }}
+                                </div>
+                            @enderror
+                        </div>
+                        <div class="mb-3">
                             <label for="date_debut" class="form-label">Début</label>
                             <input type="text" id="date_debut" name="date_debut" value="{{ old('date_debut') }}"
                                 class="form-control @error('date_debut') is-invalid @enderror" placeholder="Date et Heure"

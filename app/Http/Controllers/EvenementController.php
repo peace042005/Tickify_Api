@@ -41,11 +41,13 @@ class EvenementController extends Controller
             'tickets.*.nom' => 'required|string|max:255',
             'tickets.*.prix' => 'required|numeric|min:0',
             'images' => 'nullable|array',
+            'lieu' => 'nullable|string|max:255',
             'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
         $evenement = Evenement::create([
             'nom' => $request->event_nom,
+            'lieu' => $request->lieu,
             'description' => $request->description,
             'date_debut' => $request->date_debut,
             'date_fin' => $request->date_fin,
@@ -108,6 +110,7 @@ class EvenementController extends Controller
             'date_fin' => 'required|date|after:date_debut',
             'nombre_tickets' => 'required|integer|min:1',
             'tickets' => 'required|array|min:1',
+            'lieu' => 'nullable|string|max:255',
             'tickets.*.nom' => 'required|string|max:255',
             'tickets.*.prix' => 'required|numeric|min:0',
             'images' => 'nullable|array',
@@ -119,6 +122,7 @@ class EvenementController extends Controller
         $evenement = Evenement::findOrFail($id);
         $evenement->update([
             'nom' => $request->event_nom,
+            'lieu' => $request->lieu,
             'description' => $request->description,
             'date_debut' => $request->date_debut,
             'date_fin' => $request->date_fin,
