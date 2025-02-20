@@ -4,7 +4,7 @@
             <div class="col-12 text-center">
                 <script>
                     document.write(new Date().getFullYear())
-                </script> &copy; Darkone by StackBros.</a>
+                </script> &copy; {{ config('app.name', 'Laravel') }} fait par le groupe 03</a>
             </div>
         </div>
     </div>

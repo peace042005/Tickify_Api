@@ -33,7 +33,7 @@
                 </a>
             </div>
             <p class="card-subtitle mb-3">
-                Description d'un utilisateur...
+                Voir les utilisateurs inscrits sur l'application
             </p>
         </div>
         <div class="card-body">
