@@ -21,7 +21,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::group(['prefix' => 'v1', 'namespace' => 'App\Http\Controllers\Api\V1'], function () {
+Route::group(['prefix' => 'v1', 'as' => 'api.v1.', 'namespace' => 'App\Http\Controllers\Api\V1'], function () {
     Route::apiResource('evenements', _EvenementController::class);
 
     Route::post('/register', [AuthController::class, 'register']);

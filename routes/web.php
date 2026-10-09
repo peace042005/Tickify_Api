@@ -18,8 +18,9 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+// L'application Flutter (version web) est servie depuis /app/
 Route::get('/', function () {
-    return view('welcome');
+    return redirect('/app/');
 });
 
 Route::middleware('auth')->group(function () {
