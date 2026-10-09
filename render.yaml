@@ -1,0 +1,23 @@
+# Déploiement sur Render (offre gratuite) — voir README
+# Un seul service : l'API Laravel + l'application Flutter web (sur /app/)
+services:
+  - type: web
+    name: tickify
+    runtime: docker
+    plan: free
+    healthCheckPath: /api/v1/evenements
+    envVars:
+      - key: APP_NAME
+        value: Tickify
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: "false"
+      - key: DB_CONNECTION
+        value: sqlite
+      - key: LOG_CHANNEL
+        value: stderr
+      - key: MAIL_MAILER
+        value: log
+      - key: DEMO_RESET_ON_START
+        value: "true"

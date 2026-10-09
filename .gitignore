@@ -17,3 +17,6 @@ yarn-error.log
 /.fleet
 /.idea
 /.vscode
+
+# Build web de l'application Flutter (généré au déploiement)
+/public/app
