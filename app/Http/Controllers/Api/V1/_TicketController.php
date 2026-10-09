@@ -49,6 +49,18 @@ class _TicketController extends Controller
             'type_ticket_id' => 'required|exists:type_tickets,id',
         ]);
 
+        // Refuser l'achat si l'événement est complet ou déjà passé
+        $evenement = \App\Models\TypeTicket::findOrFail($request->type_ticket_id)->evenement;
+        $vendus = \App\Models\Ticket::whereIn('type_ticket_id', $evenement->typeTickets()->pluck('id'))->count();
+
+        if ($vendus >= $evenement->nombre_tickets) {
+            return response()->json(['message' => 'Cet événement est complet'], 422);
+        }
+
+        if (now()->greaterThan($evenement->date_fin)) {
+            return response()->json(['message' => 'Cet événement est terminé'], 422);
+        }
+
         // Créer le ticket affecté à l'utilisateur authentifié
         $request->user()->tickets()->create([
             'type_ticket_id' => $request->type_ticket_id,
@@ -63,7 +75,10 @@ class _TicketController extends Controller
      */
     public function show(Ticket $ticket)
     {
-        return $ticket;
+        // Un utilisateur ne peut consulter que ses propres billets
+        Gate::authorize('modify', $ticket);
+
+        return $ticket->load('typeTicket.evenement');
     }
 
     /**

@@ -41,7 +41,7 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $fields = $request->validate([
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'exists:users,email'],
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255'],
             'password' => ['required'],
         ]);
 
@@ -51,7 +51,7 @@ class AuthController extends Controller
 
         // Erreur si l'utilisateur n'existe pas ou si le mot de passe est incorrecte
         if (! $user || ! Hash::check($fields['password'], $user->password)) {
-            return ['message' => 'Invalid credentials'];
+            return response()->json(['message' => 'Email ou mot de passe incorrect'], 401);
         }
 
         // Ajouter le token d'authentification à l'utilisateur
